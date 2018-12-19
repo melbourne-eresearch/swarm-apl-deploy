@@ -1,0 +1,45 @@
+---
+- name: Install haproxy
+  tags: 'haproxy'
+  become: yes
+  apt:
+    name: ['haproxy']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Configure haproxy
+  tags: 'haproxy'
+  become: yes
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Create cert directory
+  tags: 'haproxy'
+  become: yes
+  file:
+    path: /etc/haproxy/certs
+    owner: root
+    group: root
+    mode: 0400
+    recurse: yes
+    state: directory
+
+- name: Make sure SSL certificate is installed
+  tags: 'haproxy'
+  become: yes
+  copy:
+    content: '{{ ssl_cert }}'
+    dest: /etc/haproxy/certs/{{ fqdn }}.pem
+    owner: root
+    group: root
+    mode: 0400
+  no_log: true
+
+- name: Restart haproxy
+  tags: 'haproxy'
+  become: yes
+  service:
+    name: haproxy
+    state: restarted

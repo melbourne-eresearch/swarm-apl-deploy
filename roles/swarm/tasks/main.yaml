@@ -1,0 +1,96 @@
+---
+- name: Get aws ecr login
+  tags: 'swarm'
+  shell: aws ecr get-login --no-include-email --region ap-southeast-2
+  register: ecr_get_login
+
+- name: Login to ECR
+  tags: 'swarm'
+  become: yes
+  shell: '{{ ecr_get_login.stdout }}'
+
+- name: Create swarm directory
+  tags: 'swarm'
+  become: yes
+  file:
+    path: "{{ swarm_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+- name: Configure compose
+  tags: 'swarm'
+  become: yes
+  template:
+    src: docker-compose.yaml.j2
+    dest: "{{ swarm_dir }}/docker-compose.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create database init script for SWARM
+  tags: 'swarm'
+  become: yes
+  template:
+    src: 0-init-swarm.sql.j2
+    dest: "/tmp/0-init-swarm.sql"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create database init script for eJabberd
+  tags: 'swarm'
+  become: yes
+  template:
+    src: 0-init-ejabberd.sql.j2
+    dest: "/tmp/0-init-ejabberd.sql"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Init SWARM database
+  tags: 'swarm'
+  become: yes
+  docker_container:
+    name: init-swarm
+    image: postgres:9.6-alpine
+    env:
+      POSTGRES_PASSWORD: "{{ api_db_root_password }}"
+    volumes:
+      - "{{ api_db_volume }}:/var/lib/postgresql/data"
+      - /tmp/0-init-swarm.sql:/docker-entrypoint-initdb.d/0-init-swarm.sql
+
+- name: Init eJabberd database
+  tags: 'swarm'
+  become: yes
+  docker_container:
+    name: init-ejabberd
+    image: postgres:9.6-alpine
+    env:
+      POSTGRES_PASSWORD: "{{ ejabberd_db_root_password }}"
+    volumes:
+      - "{{ ejabberd_db_volume }}:/var/lib/postgresql/data"
+      - /tmp/0-init-ejabberd.sql:/docker-entrypoint-initdb.d/0-init-ejabberd.sql
+
+- pause:
+    seconds: 10
+
+- name: Remove Init SWARM container
+  tags: 'swarm'
+  become: yes
+  docker_container:
+    name: init-swarm
+    state: absent
+
+- name: Remove Init eJabberd container
+  tags: 'swarm'
+  become: yes
+  docker_container:
+    name: init-ejabberd
+    state: absent
+    
+- name: Run docker compose
+  tags: 'swarm'
+  become: yes
+  docker_service:
+    project_src: "{{ swarm_dir }}"
+    pull: yes
+    state: present

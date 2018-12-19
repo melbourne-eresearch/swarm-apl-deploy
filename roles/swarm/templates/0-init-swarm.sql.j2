@@ -1,0 +1,12 @@
+CREATE USER {{ db_user }} with password '{{ db_password }}';
+
+CREATE DATABASE {{ db_name }};
+GRANT CONNECT ON DATABASE {{ db_name }} TO {{ db_user }};
+
+CREATE USER {{ es_db_user }} with password '{{ es_db_password }}';
+CREATE DATABASE {{ es_db_name }};
+GRANT CONNECT ON DATABASE {{ es_db_name }} TO {{ es_db_user }};
+
+CREATE USER {{ notification_db_user }} with password '{{ notification_db_password }}';
+CREATE DATABASE {{ notification_db_name }};
+GRANT CONNECT ON DATABASE {{ notification_db_name }} TO {{ notification_db_user }};

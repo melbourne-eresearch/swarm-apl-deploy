@@ -1,0 +1,71 @@
+---
+fqdn: swarm-apl.eresearch.unimelb.edu.au
+
+# UI
+ui_container: ui
+ui_image: ui:latest
+
+# API
+api_container: api
+api_image: api:latest
+swarm_version: '1.12.0'
+rubric_aggregation: mean
+
+db_user: swarm
+db_password: swarm
+db_name: swarm
+flask_secret_key: secret
+google_id: 'Google ID'
+google_secret: 'Google secret'
+zapier_application_key: 'Zapier application key'
+
+mail_username: sender@example.com
+mail_password: 'Email password'
+mail_default_receiver: receiver@example.com
+swarm_admin_user: swarm-master
+swarm_admin_password: password
+
+azure_tenant_id: 'Azure tenant ID'
+azure_application_id: 'Azure application ID'
+azure_application_secret: 'Azure secret'
+azure_super_user_id: 'Azure super user ID'
+
+# API Postgresql
+api_db_container: postgres
+api_db_volume: /data/database/pgdata
+api_db_root_password: password
+
+# eJabberd Postgresql
+ejabberd_db_container: postgres-ejabberd
+ejabberd_db_volume: /data/ejabberd/pgdata
+ejabberd_db_name: ejabberd
+ejabberd_db_user: ejabberd
+ejabberd_db_root_password: password
+
+# eJabberd
+ejabberd_container: ejabberd
+ejabberd_image: ejabberd:latest
+ejabberd_log_volume: /data/ejabberd/muclogs
+ejabberd_db_password: ejabberd
+
+# Event service
+es_container: eventservice
+es_image: vent-service:latest
+es_db_name: eventservice
+es_db_user: eventservice
+es_db_password: eventservice
+ns_webpush_private_key: 'Webpush private key'
+
+# Notification
+notification_containter: notification
+notification_image: otification:latest
+notification_db_name: notification
+notification_db_user: notification
+notification_db_password: password
+
+# Report
+report_container: report
+report_image: report:latest
+
+# Common
+swarm_dir: /home/{{ ansible_user }}/swarm

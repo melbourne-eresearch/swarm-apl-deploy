@@ -1,0 +1,19 @@
+- hosts: Server
+
+  vars_prompt:
+    - name: "run_init"
+      prompt: "Are you deploying to a new server [yes/no]?"
+      private: no
+
+  roles:
+    - role: common
+      when: run_init | bool
+    - role: volumes
+      when: run_init | bool
+    - role: docker
+      when: run_init | bool
+    - role: aws-cli
+      when: run_init | bool
+    - role: swarm
+    - role: swarm-haproxy
+      when: run_init | bool

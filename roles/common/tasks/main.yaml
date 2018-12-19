@@ -1,0 +1,14 @@
+---
+- name: Install dependencies
+  become: yes
+  apt:
+    name: ['apt-transport-https', 'build-essential', 'ca-certificates', 'curl', 'git', 'python-pip', 'unzip', 'vim']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Update pip
+  become: yes
+  pip:
+    name: ['pip']
+    state: latest

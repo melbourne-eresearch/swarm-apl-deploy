@@ -1,0 +1,3 @@
+CREATE USER {{ ejabberd_db_user }} with password '{{ ejabberd_db_password }}';
+CREATE DATABASE {{ ejabberd_db_name }};
+GRANT CONNECT ON DATABASE {{ ejabberd_db_name }} TO {{ ejabberd_db_user }};

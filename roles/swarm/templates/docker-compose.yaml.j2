@@ -1,0 +1,154 @@
+version: "3"
+services:
+    ui:
+        image: {{ ui_image }}
+        ports:
+            - "180:80"
+        container_name: {{ ui_container }}
+
+    api:
+        image: {{ api_image }}
+        restart: always
+        links:
+            - postgres
+        ports:
+            - "5000:5000"
+        depends_on:
+            - postgres
+        environment:
+            - SWARM_VERSION={{ swarm_version }}
+            - SWARM_ENV=Prod
+            - DEV_MODE=Off
+            - EJABBERD_HOST={{ ejabberd_container }}
+            - SQLALCHEMY_DATABASE_URI=postgresql://{{ db_user }}:{{ db_password }}@{{ api_db_container }}:5432/{{ db_name }}
+            - SQLALCHEMY_AUTOMATIC_UPGRADE=true
+            - FLASK_SECRET_KEY={{ flask_secret_key }}
+            - HELP_DESK_EMAIL=SWARM-help@unimelb.edu.au
+            - WORKERS=10
+            - TIME_OUT=120
+            - EVENT_SERVICE_URI=http://{{ es_container }}:5001
+            - GOOGLE_ID={{ google_id }}
+            - GOOGLE_SECRET={{ google_secret }}
+            - ZAPIER_APPLICATION_KEY={{ zapier_application_key }}
+            - REPORT_URI=http://{{ report_container }}:3000
+            - MAIL_USERNAME={{ mail_username }}
+            - MAIL_PASSWORD={{ mail_password }}
+            - MAIL_DEFAULT_RECEIVER={{ mail_default_receiver }}
+            - USERNAME={{ swarm_admin_user }}
+            - PASSWORD={{ swarm_admin_password }}
+            - FUTURE_SESSION_MAX_WORKERS=1
+            - RUBRIC_AGGREGATION={{ rubric_aggregation }}
+            - AZURE_TENANT_ID={{ azure_tenant_id }}
+            - AZURE_APPLICATION_ID={{ azure_application_id }}
+            - AZURE_APPLICATION_SECRET={{ azure_application_secret }}
+            - AZURE_SUPER_USER_ID={{ azure_super_user_id }}
+        container_name: {{ api_container }}
+        logging:
+            options:
+              max-size: 50m
+
+    postgres:
+        image: postgres:9.6-alpine
+        restart: always
+        ports:
+             - "5432:5432"
+        volumes:
+             - {{ api_db_volume }}:/var/lib/postgresql/data
+        environment:
+             - POSTGRES_PASSWORD={{ api_db_root_password }}
+        container_name: {{ api_db_container }}
+        logging:
+            options:
+                max-size: 50m
+
+    postgres-ejabberd:
+        image: postgres:9.6-alpine
+        restart: always
+        ports:
+             - "5433:5432"
+        volumes:
+             - {{ ejabberd_db_volume }}:/var/lib/postgresql/data
+        environment:
+             - POSTGRES_PASSWORD={{ ejabberd_db_root_password }}
+        container_name: {{ ejabberd_db_container }}
+        logging:
+            options:
+                max-size: 50m
+
+    ejabberd:
+        image: {{ ejabberd_image }}
+        restart: always
+        links:
+             - api
+             - postgres-ejabberd
+        volumes:
+             - {{ ejabberd_log_volume }}:/var/log/muclogs
+        environment:
+             - SWARM_API=http://{{ api_container }}:5000/api/user/current
+             - PGSQL_HOST={{ ejabberd_db_container }}
+             - PGSQL_DATABASE={{ ejabberd_db_name }}
+             - PGSQL_USERNAME={{ ejabberd_db_user }}
+             - PGSQL_PASSWORD={{ ejabberd_db_password }}
+        ports:
+             - "15222:5222"
+             - "15280:5280"
+        container_name: {{ ejabberd_container }}
+        logging:
+            options:
+                max-size: 50m
+
+    eventservice:
+        image: {{ es_image }}
+        restart: always
+        links:
+            - postgres
+            - api
+            - notification
+        ports:
+            - "5001:5001"
+        depends_on:
+            - postgres
+            - api
+        environment:
+            - SQLALCHEMY_DATABASE_URI=postgresql://{{ es_db_user }}:{{ es_db_password }}@{{ api_db_container }}:5432/{{ es_db_name }}
+            - WORKERS=10
+            - NS_WEBPUSH_PRIVATE_KEY={{ ns_webpush_private_key }}
+            - MOBILE_NS_URI=http://{{ notification_containter }}:8082
+        container_name: {{ es_container }}
+        logging:
+            options:
+                max-size: 50m
+
+    notification:
+        image: {{ notification_image }}
+        restart: always
+        ports:
+            - "8082:8082"
+        depends_on:
+            - postgres
+        environment:
+            - USERNAME={{ notification_db_user }}
+            - PASSWORD={{ notification_db_password }}
+            - HOST={{ api_db_container }}
+            - DB_NAME={{ notification_db_name }}
+        container_name: {{ notification_containter }}
+        logging:
+            options:
+                max-size: 50m
+
+    report:
+        image: {{ report_image }}
+        restart: always
+        ports:
+            - "3000:3000"
+        depends_on:
+            - api
+        environment:
+            - SWARM_USERNAME={{ swarm_admin_user }}
+            - SWARM_PASSWORD={{ swarm_admin_password }}
+            - SWARM_HOST=https://{{ fqdn }}
+            - API_HOST=http://{{ api_container }}:5000
+        container_name: {{ report_container }}
+        logging:
+            options:
+                max-size: 50m
