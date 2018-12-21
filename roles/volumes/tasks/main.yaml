@@ -31,7 +31,7 @@
   tags: 'volumes'
   become: yes
   file:
-    path: "{{ item.item }}"
+    path: "{{ item.item.mountpoint }}"
     recurse: yes
     state: directory
   when: item.stat.exists == false
