@@ -189,6 +189,7 @@ notification_image: notification:latest         # Notification Docker image
 notification_db_name: notification              # Notification database name
 notification_db_user: notification              # Notification database username
 notification_db_password: notification          # Notification database password
+notification_fcm_key: 'FCM Key'                 # FCM Key for Notification
 
 # Report
 report_container: report                        # The name of the Report container

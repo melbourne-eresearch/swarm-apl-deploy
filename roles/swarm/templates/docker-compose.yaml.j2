@@ -131,6 +131,7 @@ services:
             - PASSWORD={{ notification_db_password }}
             - HOST={{ api_db_container }}
             - DB_NAME={{ notification_db_name }}
+            - FCM_KEY={{ notification_fcm_key }}
         container_name: {{ notification_containter }}
         logging:
             options:
