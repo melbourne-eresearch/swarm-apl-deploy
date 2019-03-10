@@ -2,7 +2,7 @@
 - name: Install dependencies
   become: yes
   apt:
-    name: ['apt-transport-https', 'build-essential', 'ca-certificates', 'curl', 'git', 'python-pip', 'unzip', 'vim']
+    name: ['apt-transport-https', 'build-essential', 'ca-certificates', 'curl', 'git', 'postgresql-client', 'python-pip', 'python-setuptools', 'unzip', 'vim']
     state: latest
     install_recommends: no
     update_cache: yes

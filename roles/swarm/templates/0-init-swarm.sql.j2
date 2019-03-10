@@ -10,3 +10,7 @@ GRANT CONNECT ON DATABASE {{ es_db_name }} TO {{ es_db_user }};
 CREATE USER {{ notification_db_user }} with password '{{ notification_db_password }}';
 CREATE DATABASE {{ notification_db_name }};
 GRANT CONNECT ON DATABASE {{ notification_db_name }} TO {{ notification_db_user }};
+
+CREATE USER {{ cp_db_user }} with password '{{ cp_db_password }}';
+CREATE DATABASE {{ cp_db_name }};
+GRANT CONNECT ON DATABASE {{ cp_db_name }} TO {{ cp_db_user }};

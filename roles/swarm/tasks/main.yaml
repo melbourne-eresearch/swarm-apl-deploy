@@ -36,6 +36,7 @@
     dest: "/tmp/0-init-swarm.sql"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+  when: run_init | bool
 
 - name: Create database init script for eJabberd
   tags: 'swarm'
@@ -45,47 +46,19 @@
     dest: "/tmp/0-init-ejabberd.sql"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+  when: run_init | bool
 
 - name: Init SWARM database
   tags: 'swarm'
   become: yes
-  docker_container:
-    name: init-swarm
-    image: postgres:9.6-alpine
-    env:
-      POSTGRES_PASSWORD: "{{ api_db_root_password }}"
-    volumes:
-      - "{{ api_db_volume }}:/var/lib/postgresql/data"
-      - /tmp/0-init-swarm.sql:/docker-entrypoint-initdb.d/0-init-swarm.sql
+  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ api_db_root_password }} psql -U postgres -h localhost -p 5432"
+  when: run_init | bool
 
 - name: Init eJabberd database
   tags: 'swarm'
   become: yes
-  docker_container:
-    name: init-ejabberd
-    image: postgres:9.6-alpine
-    env:
-      POSTGRES_PASSWORD: "{{ ejabberd_db_root_password }}"
-    volumes:
-      - "{{ ejabberd_db_volume }}:/var/lib/postgresql/data"
-      - /tmp/0-init-ejabberd.sql:/docker-entrypoint-initdb.d/0-init-ejabberd.sql
-
-- pause:
-    seconds: 10
-
-- name: Remove Init SWARM container
-  tags: 'swarm'
-  become: yes
-  docker_container:
-    name: init-swarm
-    state: absent
-
-- name: Remove Init eJabberd container
-  tags: 'swarm'
-  become: yes
-  docker_container:
-    name: init-ejabberd
-    state: absent
+  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ ejabberd_db_root_password }} psql -U postgres -h localhost -p 5433"
+  when: run_init | bool
     
 - name: Run docker compose
   tags: 'swarm'
@@ -94,3 +67,5 @@
     project_src: "{{ swarm_dir }}"
     pull: yes
     state: present
+    remove_orphans: yes
+    recreate: always

@@ -108,8 +108,8 @@ ssl_cert: |
   -----END CERTIFICATE-----
 
 # AWS
-aws_access_key_id: 'YOUR_ACCESS_KEY_ID'         # AWS access key ID
-aws_secret_access_key: 'YOUR_SECRET_ACCESS_KEY' # AWS secret access key
+aws_access_key_id: 'YOUR_ACCESS_KEY_ID'                                    # AWS access key ID
+aws_secret_access_key: 'YOUR_SECRET_ACCESS_KEY'                            # AWS secret access key
 
 # Volumes if there are any volumes attached to the VM
 volumes:
@@ -124,79 +124,81 @@ volumes:
 #   - mountpoint: /data
 
 # UI
-ui_container: ui                                # The name of the UI container
-ui_image: ui:latest                             # UI Docker image
+ui_container: ui                                                           # The name of the UI container
+ui_image: ui:latest                                                        # UI Docker image
 
 # API
-api_container: api                              # The name of the API container
-api_image: api:latest                           # API Docker image
-swarm_version: '1.12.0'                         # SWARM version to display in the UI
-rubric_aggregation: mean                        # The rubric aggregation model, currently only `mean` is valid
+api_container: api                                                         # The name of the API container
+api_image: api:latest                                                      # API Docker image
+swarm_version: '1.12.0'                                                    # SWARM version to display in the UI
+rubric_aggregation: mean                                                   # The rubric aggregation model, currently only `mean` is valid
 
-db_user: swarm                                  # API database username
-db_password: password                           # API database password
-db_name: swarm                                  # API database name
-flask_secret_key: secret                        # Flask application secret key
-google_id: 'Google ID'                          # Google ID (optional), for Google Oauth only
-google_secret: 'Google secret'                  # Google secret (optional), for Google Oauth only
-zapier_application_key: ''                      # Zapier application key (optional), currently not in use
+db_user: swarm                                                             # API database username
+db_password: password                                                      # API database password
+db_name: swarm                                                             # API database name
+flask_secret_key: secret                                                   # Flask application secret key
+google_id: 'Google ID'                                                     # Google ID (optional), for Google Oauth only
+google_secret: 'Google secret'                                             # Google secret (optional), for Google Oauth only
+zapier_application_key: ''                                                 # Zapier application key (optional), currently not in use
 
-mail_username: sender@example.com               # Mail server username
-mail_password: password                         # Mail server password
-mail_default_receiver: receiver@example.com     # The email address to receive the reports
-swarm_admin_user: swarm-master                  # SWARM admin username
-swarm_admin_password: password                  # SWARM admin password
+mail_username: sender@example.com                                          # Mail server username
+mail_password: password                                                    # Mail server password
+mail_default_receiver: receiver@example.com                                # The email address to receive the reports
+swarm_admin_user: swarm-master                                             # SWARM admin username
+swarm_admin_password: password                                             # SWARM admin password
 
-azure_tenant_id: 'Azure tenant ID'              # Azure tenant ID (optional), for Microsoft Oauth only
+azure_tenant_id: 'Azure tenant ID'                                         # Azure tenant ID (optional), for Microsoft Oauth only
 azure_application_id: 'Azure application ID'    # Azure application ID (optional), for Microsoft Oauth only
-azure_application_secret: 'Azure secret'        # Azure secret (optional), for Microsoft Oauth only
-azure_super_user_id: 'Azure super user ID'      # User ID of the Azure super user, currently not in use
+azure_application_secret: 'Azure secret'                                   # Azure secret (optional), for Microsoft Oauth only
+azure_super_user_id: 'Azure super user ID'                                 # User ID of the Azure super user, currently not in use
+azure_super_user_onenote_folder_id: 'Azure super user Onenote folder ID'   # Azure super user Onenote folder ID, currently not in use
+azure_super_user_word_template_id: 'Azure super user Word template ID'     # Azure super user Word template ID, currently not in use
 
 # API Postgresql
-api_db_container: postgres                      # The name of the API database container
-api_db_volume: /data/database/pgdata            # The directory to persist the database files
+api_db_container: postgres                                                 # The name of the API database container
+api_db_volume: /data/database/pgdata                                       # The directory to persist the database files
 
-api_db_root_password: password                  # API Postgresql root password
+api_db_root_password: password                                             # API Postgresql root password
 
 # eJabberd Postgresql
-ejabberd_db_container: postgres-ejabberd        # The name of the eJabberd database container
-ejabberd_db_volume: /data/ejabberd/pgdata       # The directory to persist the database files
+ejabberd_db_container: postgres-ejabberd                                   # The name of the eJabberd database container
+ejabberd_db_volume: /data/ejabberd/pgdata                                  # The directory to persist the database files
 
-ejabberd_db_name: ejabberd                      # eJabberd database name
-ejabberd_db_user: ejabberd                      # eJabberd database username
-ejabberd_db_root_password: ejabberd             # eJabberd database root password
+ejabberd_db_name: ejabberd                                                 # eJabberd database name
+ejabberd_db_user: ejabberd                                                 # eJabberd database username
+ejabberd_db_root_password: ejabberd                                        # eJabberd database root password
 
 # eJabberd
-ejabberd_container: apl-ejabberd                # The name of the eJabberd container
-ejabberd_image: ejabberd:latest                 # eJabberd Docker image
-ejabberd_log_volume: /data/ejabberd/muclogs     # The directory to save the eJabberd muclogs
+ejabberd_container: apl-ejabberd                                           # The name of the eJabberd container
+ejabberd_image: ejabberd:latest                                            # eJabberd Docker image
+ejabberd_log_volume: /data/ejabberd/muclogs                                # The directory to save the eJabberd muclogs
 
-ejabberd_db_password: ejabberd                  # eJabberd database password
+ejabberd_db_password: ejabberd                                             # eJabberd database password
 
 # Event service
-es_container: eventservice                      # The name of the Event Service container
-es_image: event-service:latest                  # Event Service Docker image
+es_container: eventservice                                                 # The name of the Event Service container
+es_image: event-service:latest                                             # Event Service Docker image
 
-es_db_name: eventservice                        # Event Service database name
-es_db_user: eventservice                        # Event Service database username
-es_db_password: eventservice                    # Event Service database password
-ns_webpush_private_key: 'Webpush Key'           # Private key for webpush service
+es_db_name: eventservice                                                   # Event Service database name
+es_db_user: eventservice                                                   # Event Service database username
+es_db_password: eventservice                                               # Event Service database password
+ns_webpush_private_key: 'Webpush Key'                                      # Private key for webpush service
 
 # Notification
-notification_containter: notification           # The name of the Notification container
-notification_image: notification:latest         # Notification Docker image
+notification_containter: notification                                      # The name of the Notification container
+notification_image: notification:latest                                    # Notification Docker image
 
-notification_db_name: notification              # Notification database name
-notification_db_user: notification              # Notification database username
-notification_db_password: notification          # Notification database password
-notification_fcm_key: 'FCM Key'                 # FCM Key for Notification
+notification_db_name: notification                                         # Notification database name
+notification_db_user: notification                                         # Notification database username
+notification_db_password: notification                                     # Notification database password
+notification_fcm_key: 'FCM Key'                                            # FCM Key for Notification
 
 # Report
-report_container: report                        # The name of the Report container
-report_image: report:latest                     # Report Docker image
+report_container: report                                                   # The name of the Report container
+report_image: report:latest                                                # Report Docker image
 
 # Common
-swarm_dir: /home/{{ ansible_user }}/swarm       # The directory to save the docker-compose file
+swarm_dir: /home/{{ ansible_user }}/swarm                                  # The directory to save the docker-compose file
 ```
 
 ### Run playbook

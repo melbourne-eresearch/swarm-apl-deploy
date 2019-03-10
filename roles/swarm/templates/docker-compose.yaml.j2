@@ -21,9 +21,9 @@ services:
             - DEV_MODE=Off
             - EJABBERD_HOST={{ ejabberd_container }}
             - SQLALCHEMY_DATABASE_URI=postgresql://{{ db_user }}:{{ db_password }}@{{ api_db_container }}:5432/{{ db_name }}
-            - SQLALCHEMY_AUTOMATIC_UPGRADE=true
+            - SQLALCHEMY_AUTOMATIC_UPGRADE={{ auto_migration }}
             - FLASK_SECRET_KEY={{ flask_secret_key }}
-            - HELP_DESK_EMAIL=SWARM-help@unimelb.edu.au
+            - HELP_DESK_EMAIL=swarm-help@unimelb.edu.au
             - WORKERS=10
             - TIME_OUT=120
             - EVENT_SERVICE_URI=http://{{ es_container }}:5001
@@ -38,10 +38,14 @@ services:
             - PASSWORD={{ swarm_admin_password }}
             - FUTURE_SESSION_MAX_WORKERS=1
             - RUBRIC_AGGREGATION={{ rubric_aggregation }}
+            - RUBRIC_MODEL={{ rubric_model }}
+            - AZURE_ENABLED={{ azure_enabled }}
             - AZURE_TENANT_ID={{ azure_tenant_id }}
             - AZURE_APPLICATION_ID={{ azure_application_id }}
             - AZURE_APPLICATION_SECRET={{ azure_application_secret }}
             - AZURE_SUPER_USER_ID={{ azure_super_user_id }}
+            - AZURE_SUPER_USER_ONENOTE_FOLDER_ID={{ azure_super_user_onenote_folder_id }}
+            - AZURE_SUPER_USER_WORD_TEMPLATE_ID= {{ azure_super_user_word_template_id }}
         container_name: {{ api_container }}
         logging:
             options:
@@ -82,9 +86,11 @@ services:
              - api
              - postgres-ejabberd
         volumes:
-             - {{ ejabberd_log_volume }}:/var/log/muclogs
+             - {{ ejabberd_log_volume }}:/home/ejabberd/muclogs
+             - {{ ejabberd_upload_volume }}:/home/ejabberd/upload
         environment:
-             - SWARM_API=http://{{ api_container }}:5000/api/user/current
+             - SWARM_API=http://{{ api_container }}:5000
+             - FQDN=https://{{ fqdn }}
              - PGSQL_HOST={{ ejabberd_db_container }}
              - PGSQL_DATABASE={{ ejabberd_db_name }}
              - PGSQL_USERNAME={{ ejabberd_db_user }}
@@ -150,6 +156,31 @@ services:
             - SWARM_HOST=https://{{ fqdn }}
             - API_HOST=http://{{ api_container }}:5000
         container_name: {{ report_container }}
+        logging:
+            options:
+                max-size: 50m
+    
+    chainpad:
+        image: {{ chainpad_image }}
+        restart: always
+        ports:
+            - "3001:3000"
+        depends_on:
+            - api
+        environment:
+            - DB_USERNAME={{ cp_db_user }}
+            - DB_PASSWORD={{ cp_db_password }}
+            - DB_NAME={{ cp_db_name }}
+            - DB_HOST={{ api_db_container }}
+            - DB_PORT=5432
+            - DB_DIALECT=postgresql
+            - DB_LOGGING=true
+            - SWARM_API_HOST=http://{{ api_container }}:5000
+            - SWARM_API_PATH=/api/
+            - WSS_PORT=3000
+            - WSS_PATH=/broadcasting-ws
+            - LOG_LEVEL=info
+        container_name: {{ chainpad_container }}
         logging:
             options:
                 max-size: 50m
