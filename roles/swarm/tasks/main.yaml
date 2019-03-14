@@ -28,6 +28,16 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
 
+- name: Run docker compose
+  tags: 'swarm'
+  become: yes
+  docker_service:
+    project_src: "{{ swarm_dir }}"
+    pull: yes
+    state: present
+    remove_orphans: yes
+    recreate: always
+
 - name: Create database init script for SWARM
   tags: 'swarm'
   become: yes
@@ -57,15 +67,15 @@
 - name: Init eJabberd database
   tags: 'swarm'
   become: yes
-  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ ejabberd_db_root_password }} psql -U postgres -h localhost -p 5433"
+  shell: "cat /tmp/0-init-ejabberd.sql | PGPASSWORD={{ ejabberd_db_root_password }} psql -U postgres -h localhost -p 5433"
   when: run_init | bool
     
-- name: Run docker compose
+- name: Restart all containers
   tags: 'swarm'
   become: yes
   docker_service:
     project_src: "{{ swarm_dir }}"
-    pull: yes
     state: present
     remove_orphans: yes
-    recreate: always
+    restarted: yes
+  when: run_init | bool

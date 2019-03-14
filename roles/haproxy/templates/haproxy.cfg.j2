@@ -36,11 +36,15 @@ defaults
 frontend http
         bind *:80
         mode http
+
+        acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+
         reqadd X-Forwaded-Proto:\ http
-        redirect scheme https code 301 if !{ ssl_fc }
+        use_backend letsencrypt-backend if letsencrypt-acl
+        default_backend redirect-https
 
 frontend https
-        bind *:443 ssl crt /etc/haproxy/certs/{{ fqdn }}.pem
+        bind *:443 ssl crt {{ letsencrypt_haproxy_cert_dir }}/{{ letsencrypt_domain }}.pem
 
         acl isAdmin http_auth(admins)
         acl api_url path_beg /api
@@ -63,10 +67,13 @@ frontend https
         stats auth {{ haproxy_admin }}:{{ haproxy_admin_password }}
 
 frontend chat-mobile
-        bind *:5222 ssl crt /etc/haproxy/certs/{{ fqdn }}.pem
+        bind *:5222 ssl crt {{ letsencrypt_haproxy_cert_dir }}/{{ letsencrypt_domain }}.pem
         mode tcp
         option tcplog
         default_backend chat-tcp
+
+backend redirect-https
+        redirect scheme https code 301 if !{ ssl_fc }
 
 backend ui
         timeout check 500
@@ -98,3 +105,6 @@ backend chat-tcp
         timeout server 30s
         timeout tunnel 1h
         server server1 127.0.0.1:15222 maxconn 32 check fall 5 inter 500
+
+backend letsencrypt-backend
+        server server1 127.0.0.1:15555

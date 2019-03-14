@@ -20,7 +20,7 @@ Microsoft authorization credentials are required to use Microsoft OAuth in SWARM
 
 ### Ansible vault password
 
-Sensitive data (such as SSL certificate and passwords) are encrpyted with Ansible vault. Vault password is required to decrept these data during the deployment.
+Sensitive data (such as SSL certificate and passwords) may be encrpyted with Ansible vault. Vault password is required to decrept these data during the deployment.
 
 ## Deployment
 
@@ -55,6 +55,11 @@ Please create the host vars files. Example:
 fqdn: swarm-apl.eresearch.unimelb.edu.au        # Fully qualified domain name
 haproxy_admin: admin                            # Admin username (for access /haprxoy?stats and /upload/usergroup endpoints)
 haproxy_admin_password: password                # Admin password
+
+# Let's encrypt
+letsencrypt_domain: "{{ fqdn }}"
+letsencrypt_admin_email: "admin@example.com"    # Let's Encrypt admin email address
+letsencrypt_haproxy_cert_dir: "/etc/ssl/certs"
 
                                                 # SSL sertificate, the example is a self-signed certificate, please replace it with a proper SSL certificate
 ssl_cert: |

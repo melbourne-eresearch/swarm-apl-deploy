@@ -1,8 +1,11 @@
-- hosts: Server
+- hosts: all
 
   vars_prompt:
     - name: "run_init"
       prompt: "Are you deploying to a new server [yes/no]?"
+      private: no
+    - name: "run_letsencrypt"
+      prompt: "Do you want to generate SSL certificate using Let's Encrypt [yes/no]?"
       private: no
 
   roles:
@@ -15,5 +18,5 @@
     - role: aws-cli
       when: run_init | bool
     - role: swarm
-    - role: swarm-haproxy
+    - role: haproxy
       when: run_init | bool

@@ -4,6 +4,15 @@ fqdn: swarm-apl.eresearch.unimelb.edu.au
 haproxy_admin: admin
 haproxy_admin_password: password
 
+letsencrypt_domain: example.com
+letsencrypt_admin_email: "admin@example.com"
+
+letsencrypt_data_dir: "/etc/letsencrypt"
+letsencrypt_haproxy_cert_dir: "/etc/ssl/certs"
+
+letsencrypt_ssl_certificate: "{{ letsencrypt_data_dir }}/live/{{ letsencrypt_domain }}/fullchain.pem"
+letsencrypt_ssl_certificate_key: "{{ letsencrypt_data_dir }}/live/{{ letsencrypt_domain }}/privkey.pem"
+
 ssl_cert: |
   -----BEGIN RSA PRIVATE KEY-----
   MIIEpAIBAAKCAQEA2+FqxKDl41Ywwp1l5zqy1vv5meOAnffwHEiE4+ikXYklmYpD
