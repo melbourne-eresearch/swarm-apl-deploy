@@ -37,6 +37,7 @@
     state: present
     remove_orphans: yes
     recreate: always
+
 - name: Create database init script for SWARM
   tags: 'swarm'
   become: yes
@@ -66,4 +67,26 @@
     state: present
     remove_orphans: yes
     restarted: yes
+  when: run_init | bool
+
+- name: Create backup script
+  tags: 'swarm'
+  become: yes
+  template:
+    src: backup.sh.j2
+    dest: "/data/backup.sh"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+  when: run_init | bool
+
+- name: Add cron task for backup
+  tags: 'swarm'
+  become: yes
+  cron:
+    name: "backup database"
+    special_time: "hourly"
+    cron_file: "backup"
+    user: "root"
+    job: "/data/backup.sh"
   when: run_init | bool

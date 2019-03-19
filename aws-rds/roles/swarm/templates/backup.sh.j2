@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -Eeuo pipefail
+
+TODAY=$(date +"%d%m%y")
+NOW=$(date +"%d%m%y-%H%M%S")
+DIRECTORY={{ backup_directory }}/$TODAY
+LOG={{ backup_directory }}/logs/log-$NOW.txt
+
+echo "SWARM AWS Dump (Prod)"
+if [ ! -d "$DIRECTORY" ]; then
+  echo "Creating working directory..."
+  mkdir -p $DIRECTORY/logs
+fi
+
+echo "Start backup API database..."
+docker run --rm -i -e PGPASSWORD={{ api_db_password }} postgres /usr/bin/pg_dump \
+-h {{ rds_endpoint }} \
+-U {{ api_db_user }} -d {{ api_db_name }} | gzip -9 > $DIRECTORY/api-backup-$NOW.sql.gz
+
+echo "Start backup EventService database..."
+docker run --rm -i -e PGPASSWORD={{ es_db_password }} postgres /usr/bin/pg_dump \
+-h {{ rds_endpoint }} \
+-U {{ es_db_user }} -d {{ es_db_name }} | gzip -9 > $DIRECTORY/eventservice-backup-$NOW.sql.gz
+
+echo "Start backup eJabberd database..."
+docker run --rm -i -e PGPASSWORD={{ ejabberd_db_password }} postgres /usr/bin/pg_dump \
+-h {{ rds_endpoint }} \
+-U {{ ejabberd_db_user }} -d {{ ejabberd_db_name }} | gzip -9 > $DIRECTORY/ejabberd-backup-$NOW.sql.gz
+
+echo "Start backup Notification database..."
+docker run --rm -i -e PGPASSWORD={{ notification_db_password }} postgres /usr/bin/pg_dump \
+-h {{ rds_endpoint }} \
+-U {{ notification_db_user }} -d {{ notification_db_name }} | gzip -9 > $DIRECTORY/notification-backup-$NOW.sql.gz
+
+echo "Start backup ChainPad database..."
+docker run --rm -i -e PGPASSWORD={{ cp_db_password }} postgres /usr/bin/pg_dump \
+-h {{ rds_endpoint }} \
+-U {{ cp_db_user }} -d {{ cp_db_name }} | gzip -9 > $DIRECTORY/chainpad-backup-$NOW.sql.gz
