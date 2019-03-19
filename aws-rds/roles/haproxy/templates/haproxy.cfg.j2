@@ -29,9 +29,9 @@ defaults
         option  http-server-close
         option  log-health-checks
         option  httpchk
-        timeout connect 5000
-        timeout client  50000
-        timeout server  50000
+        timeout connect 60s
+        timeout client  1000s
+        timeout server  1000s
 
 frontend http
         bind *:80
@@ -50,6 +50,8 @@ frontend https
         acl api_url path_beg /api
         acl upload_url path_beg /upload/usergroup
         acl chat_url path_beg /http-ws or /http-bind
+        acl chainpad_url path_beg /broadcasting-ws
+        acl ejabberd_upload path_beg /ejabberd/upload
 
         http-response set-header Cache-Control no-cache,\ max-age=0 if { capture.req.uri -m beg /api }
 
@@ -58,7 +60,8 @@ frontend https
         reqadd X-Forwarded-Proto:\ https
         default_backend ui
         use_backend api if api_url or upload_url
-        use_backend chat if chat_url
+        use_backend chat if chat_url or ejabberd_upload
+        use_backend chainpad if chainpad_url
 
         stats enable
         stats hide-version
@@ -78,22 +81,22 @@ backend redirect-https
 backend ui
         timeout check 500
         option httpchk HEAD /
-        server server1 127.0.0.1:180 maxconn 32 check
+        server server1 127.0.0.1:180 maxconn 2000 check
 
 backend api
         option httpchk HEAD /
         timeout check 5000
-        server server1 127.0.0.1:5000 maxconn 32 check fall 5 inter 500
+        server server1 127.0.0.1:5000 maxconn 2000 check fall 5 inter 500
 
 backend chat
         option httpchk GET /http-ws HTTP/1.1\r\nHost:\ localhost
         timeout check 500
         option http-server-close
         option redispatch
-        timeout connect 5s
-        timeout server 30s
+        timeout connect 60s
+        timeout server 600s
         timeout tunnel 1h # Tunneled connections may last for 1 hour
-        server server1 127.0.0.1:15280 maxconn 32 check fall 5 inter 500
+        server server1 127.0.0.1:15280 maxconn 2000 check fall 5 inter 500
 
 backend chat-tcp
         mode tcp
@@ -101,10 +104,17 @@ backend chat-tcp
         option redispatch
         option srvtcpka
         option independent-streams
+        timeout connect 60s
+        timeout server 600s
+        timeout tunnel 1h
+        server server1 127.0.0.1:15222 maxconn 2000 check fall 5 inter 500
+
+backend chainpad
+        option httpchk GET /health-check HTTP/1.1\r\nHost:\ localhost
+        timeout check 500
         timeout connect 5s
         timeout server 30s
-        timeout tunnel 1h
-        server server1 127.0.0.1:15222 maxconn 32 check fall 5 inter 500
+        server server1 127.0.0.1:3001 maxconn 2000 check fall 5 inter 500
 
 backend letsencrypt-backend
         server server1 127.0.0.1:15555

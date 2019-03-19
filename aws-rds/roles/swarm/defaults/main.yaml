@@ -1,0 +1,80 @@
+---
+fqdn: swarm.eresearch.unimelb.edu.au
+
+# AWS RDS
+db_user: db_master
+db_password: password
+rds_endpoint: rds.amazonaws.com
+
+# UI
+ui_container: ui
+ui_image: ui:latest
+
+# API
+api_container: api
+api_image: api:latest
+swarm_version: '1.12.0'
+rubric_aggregation: mean
+rubric_model: CoreRubric
+
+api_db_user: swarm
+api_db_password: swarm
+api_db_name: swarm
+auto_migration: 'true'
+flask_secret_key: secret
+google_id: 'Google ID'
+google_secret: 'Google secret'
+zapier_application_key: 'Zapier application key'
+
+mail_username: sender@example.com
+mail_password: 'Email password'
+mail_default_receiver: receiver@example.com
+swarm_admin_user: swarm-master
+swarm_admin_password: password
+
+azure_enabled: 'false'
+azure_tenant_id: 'Azure tenant ID'
+azure_application_id: 'Azure application ID'
+azure_application_secret: 'Azure secret'
+azure_super_user_id: 'Azure super user ID'
+azure_super_user_onenote_folder_id: 'Azure super user Onenote folder ID'
+azure_super_user_word_template_id: 'Azure super user Word template ID'
+
+# eJabberd
+ejabberd_container: ejabberd
+ejabberd_image: ejabberd:latest
+ejabberd_log_volume: /data/ejabberd/muclogs
+ejabberd_upload_volume: /data/ejabberd/upload
+ejabberd_db_name: ejabberd
+ejabberd_db_user: ejabberd
+ejabberd_db_password: ejabberd
+
+
+# Event service
+es_container: eventservice
+es_image: vent-service:latest
+es_db_name: eventservice
+es_db_user: eventservice
+es_db_password: eventservice
+ns_webpush_private_key: 'Webpush private key'
+
+# Notification
+notification_containter: notification
+notification_image: otification:latest
+notification_db_name: notification
+notification_db_user: notification
+notification_db_password: password
+
+# Report
+report_container: report
+report_image: report:latest
+
+# Common
+swarm_dir: /home/{{ ansible_user }}/swarm
+
+# ChainPad
+chainpad_container: chainpad
+chainpad_image: chainpad:latest
+cp_db_name: chainpad
+cp_db_user: chainpad
+cp_db_password: chainpad

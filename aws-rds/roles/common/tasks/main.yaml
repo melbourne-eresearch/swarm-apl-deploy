@@ -1,4 +1,8 @@
 ---
+- name: Gather facts of remote host
+  setup:
+    gather_subset: all
+
 - name: Install dependencies
   tags: always
   become: yes

@@ -1,0 +1,81 @@
+---
+- name: Get aws ecr login
+  tags: 'swarm'
+  shell: aws ecr get-login --no-include-email --region ap-southeast-2
+  register: ecr_get_login
+
+- name: Login to ECR
+  tags: 'swarm'
+  become: yes
+  shell: '{{ ecr_get_login.stdout }}'
+
+- name: Create SWARM directory
+  tags: 'swarm'
+  become: yes
+  file:
+    path: "{{ swarm_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+- name: Configure compose
+  tags: 'swarm'
+  become: yes
+  template:
+    src: docker-compose.yaml.j2
+    dest: "{{ swarm_dir }}/docker-compose.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Run docker compose
+  tags: 'swarm'
+  become: yes
+  docker_service:
+    project_src: "{{ swarm_dir }}"
+    pull: yes
+    state: present
+    remove_orphans: yes
+    recreate: always
+
+- name: Create database init script for SWARM
+  tags: 'swarm'
+  become: yes
+  template:
+    src: 0-init-swarm.sql.j2
+    dest: "/tmp/0-init-swarm.sql"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  when: run_init | bool
+
+- name: Create database init script for eJabberd
+  tags: 'swarm'
+  become: yes
+  template:
+    src: 0-init-ejabberd.sql.j2
+    dest: "/tmp/0-init-ejabberd.sql"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  when: run_init | bool
+
+- name: Init SWARM database
+  tags: 'swarm'
+  become: yes
+  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ api_db_root_password }} psql -U postgres -h localhost -p 5432"
+  when: run_init | bool
+
+- name: Init eJabberd database
+  tags: 'swarm'
+  become: yes
+  shell: "cat /tmp/0-init-ejabberd.sql | PGPASSWORD={{ ejabberd_db_root_password }} psql -U postgres -h localhost -p 5433"
+  when: run_init | bool
+    
+- name: Restart all containers
+  tags: 'swarm'
+  become: yes
+  docker_service:
+    project_src: "{{ swarm_dir }}"
+    state: present
+    remove_orphans: yes
+    restarted: yes
+  when: run_init | bool

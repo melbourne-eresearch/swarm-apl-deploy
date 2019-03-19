@@ -9,7 +9,7 @@
   become: yes
   shell: '{{ ecr_get_login.stdout }}'
 
-- name: Create swarm directory
+- name: Create SWARM directory
   tags: 'swarm'
   become: yes
   file:
@@ -37,7 +37,6 @@
     state: present
     remove_orphans: yes
     recreate: always
-
 - name: Create database init script for SWARM
   tags: 'swarm'
   become: yes
@@ -48,26 +47,14 @@
     group: "{{ ansible_user }}"
   when: run_init | bool
 
-- name: Create database init script for eJabberd
-  tags: 'swarm'
-  become: yes
-  template:
-    src: 0-init-ejabberd.sql.j2
-    dest: "/tmp/0-init-ejabberd.sql"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-  when: run_init | bool
-
 - name: Init SWARM database
   tags: 'swarm'
   become: yes
-  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ api_db_root_password }} psql -U postgres -h localhost -p 5432"
+  shell: "cat /tmp/0-init-swarm.sql | PGPASSWORD={{ db_password }} psql -U {{ db_user }} -d postgres -h {{ rds_endpoint }}"
   when: run_init | bool
 
-- name: Init eJabberd database
-  tags: 'swarm'
-  become: yes
-  shell: "cat /tmp/0-init-ejabberd.sql | PGPASSWORD={{ ejabberd_db_root_password }} psql -U postgres -h localhost -p 5433"
+- pause:
+    seconds: 10
   when: run_init | bool
     
 - name: Restart all containers
@@ -75,6 +62,7 @@
   become: yes
   docker_service:
     project_src: "{{ swarm_dir }}"
+    pull: yes
     state: present
     remove_orphans: yes
     restarted: yes

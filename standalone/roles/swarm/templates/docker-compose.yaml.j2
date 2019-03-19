@@ -20,7 +20,7 @@ services:
             - SWARM_ENV=Prod
             - DEV_MODE=Off
             - EJABBERD_HOST={{ ejabberd_container }}
-            - SQLALCHEMY_DATABASE_URI=postgresql://{{ db_user }}:{{ db_password }}@{{ api_db_container }}:5432/{{ db_name }}
+            - SQLALCHEMY_DATABASE_URI=postgresql://{{ api_db_user }}:{{ api_db_password }}@{{ api_db_container }}:5432/{{ api_db_name }}
             - SQLALCHEMY_AUTOMATIC_UPGRADE={{ auto_migration }}
             - FLASK_SECRET_KEY={{ flask_secret_key }}
             - HELP_DESK_EMAIL=swarm-help@unimelb.edu.au

@@ -1,0 +1,102 @@
+---
+- name: Install haproxy
+  tags: 'haproxy'
+  become: yes
+  apt:
+    name: ['haproxy']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+# Install certbot and haproxy
+- name: Ensure Ubuntu universe repo is enabled
+  tags: 'haproxy'
+  become: yes
+  apt_repository:
+    repo: "deb http://au.archive.ubuntu.com/ubuntu {{ ansible_distribution_release|lower }} universe"
+    state: present
+  when: run_letsencrypt | bool
+
+- name: Add certbot repo
+  tags: 'haproxy'
+  become: yes
+  apt_repository:
+    repo: ppa:certbot/certbot
+    state: present
+  when: run_letsencrypt | bool
+
+- name: Install certbot
+  tags: 'haproxy'
+  become: yes
+  apt:
+    name: 'certbot'
+    state: latest
+    install_recommends: no
+    update_cache: yes
+  when: run_letsencrypt | bool
+
+# Setup haproxy for letsencrypt
+- name: Configure haproxy for letsencrypt
+  tags: 'haproxy'
+  become: yes
+  template:
+    src: haproxy-letsencrypt.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  when: run_letsencrypt | bool
+
+- name: Restart haproxy
+  tags: 'haproxy'
+  become: yes
+  service:
+    name: haproxy
+    state: restarted
+  when: run_letsencrypt | bool
+
+# Create certs via Let's Encrypt
+- name: Create letsencrypt certs
+  tags: 'haproxy'
+  become: yes
+  shell: "certbot certonly -n --standalone -d {{ letsencrypt_domain }} --text --agree-tos --email {{ letsencrypt_admin_email }} --post-hook='cat {{ letsencrypt_ssl_certificate }} {{ letsencrypt_ssl_certificate_key }} > {{ letsencrypt_haproxy_cert_dir }}/{{ letsencrypt_domain }}.pem' --server https://acme-v02.api.letsencrypt.org/directory --rsa-key-size 4096 --verbose --keep-until-expiring --standalone-supported-challenges http-01 --http-01-port 15555"
+  when: run_letsencrypt | bool
+
+# Create certs from variable
+- name: Make sure SSL certificate is installed
+  tags: 'haproxy'
+  become: yes
+  copy:
+    content: '{{ ssl_cert }}'
+    dest: /etc/ssl/certs/{{ fqdn }}.pem
+    owner: root
+    group: root
+    mode: 0400
+  no_log: true
+  when: not run_letsencrypt | bool
+
+# Setup haproxy for SWARM
+- name: Configure haproxy for SWARM
+  tags: 'haproxy'
+  become: yes
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Restart haproxy
+  tags: 'haproxy'
+  become: yes
+  service:
+    name: haproxy
+    state: restarted
+
+# Create cron job to renew the certificate
+- name: Add cron task for letsencrypt renew
+  tags: 'haproxy'
+  become: yes
+  cron:
+    name: "letsencrypt renew"
+    minute: "30"
+    hour: "2"
+    weekday: "1"
+    cron_file: "letsencrypt"
+    user: "root"
+    job: "certbot renew --renew-hook '/etc/init.d/haproxy reload' > /dev/null"
+  when: run_letsencrypt | bool

@@ -12,9 +12,9 @@ swarm_version: '1.12.0'
 rubric_aggregation: mean
 rubric_model: CoreRubric
 
-db_user: swarm
-db_password: swarm
-db_name: swarm
+api_db_user: swarm
+api_db_password: swarm
+api_db_name: swarm
 auto_migration: 'true'
 flask_secret_key: secret
 google_id: 'Google ID'

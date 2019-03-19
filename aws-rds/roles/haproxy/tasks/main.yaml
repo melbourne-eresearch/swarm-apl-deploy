@@ -3,7 +3,7 @@
   tags: 'haproxy'
   become: yes
   apt:
-    name: 'haproxy'
+    name: ['haproxy']
     state: latest
     install_recommends: no
     update_cache: yes
