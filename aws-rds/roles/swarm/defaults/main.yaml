@@ -6,6 +6,9 @@ db_user: db_master
 db_password: password
 rds_endpoint: rds.amazonaws.com
 
+# Backup
+backup_directory: /backup/database
+
 # UI
 ui_container: ui
 ui_image: ui:latest
