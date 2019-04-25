@@ -1,45 +1,47 @@
-# SWARM Deployment
+# SWARM
+
+## SWARM Deployment
 
 This [Ansbile](https://www.ansible.com/) playbook deploys SWARM stack to a Linux server that runs Ubuntu.
 
-## Requirements
+### Requirements
 
-### Ansible
+#### Ansible
 
 Ansbile is required to run this playbook. Please follow the instructions [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) to install Ansible to your local computer.
 
 **Note:** This script has been tested on MacOS with Ansible version 2.7.5 only.
 
-### Google OAuth 2.0
+#### Google OAuth 2.0
 
 Google authorization credentials are required to use Google OAuth in SWARM (**optional**). Please follow the [Using OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/OAuth2WebServer) guide to create the credentials.
 
-### Microsoft OAuth 2.0
+#### Microsoft OAuth 2.0
 
 Microsoft authorization credentials are required to use Microsoft OAuth in SWARM (**optional**). Please follow the [Authorize access to Azure Active Directory web applications using the OAuth 2.0 code grant flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v1-protocols-oauth-code) guide to create the credentials.
 
-### Ansible vault password
+#### Ansible vault password
 
 Sensitive data (such as SSL certificate and passwords) may be encrpyted with Ansible vault. Vault password is required to decrept these data during the deployment.
 
-## Deployment
+### Deployment
 
-### Inventory
+#### Inventory
 
 Please create / update the inventory file and add the destination host(s) in the inventory. Example:
 
-#### hosts
+##### hosts
 
 ```bash
 [Server]
 115.146.92.16
 ```
 
-### Set host vars
+#### Set host vars
 
 Please create the host vars files. Example:
 
-#### vault_ apl.yaml
+##### vault_ apl.yaml
 
 **Note:** This file should ideally be encrypted by the Ansible vault for security reasons.
 
@@ -206,11 +208,35 @@ report_image: report:latest                                                # Rep
 swarm_dir: /home/{{ ansible_user }}/swarm                                  # The directory to save the docker-compose file
 ```
 
-### Run playbook
+#### Run playbook
 
 Use the command below to run the playbook, and only supply `--vault-id @prompt` if the `host-vars-file` is encrypted by Ansible vault. `-vvvv` option is for debug purpose only.
 
 ```bash
 ansible-playbook [-vvvv] -i hosts -u ubuntu --key-file=<path-to-ssh-private-key> \
                  -e @./host_vars/<host-vars-file-name> [--vault-id @prompt] server.yaml
+```
+
+## SWARM Scripts
+
+### Export users
+
+A script (`export_users.py`) for exporting all the users in a SWARM instance can be found in the `scripts` folder.
+
+**Requirements:**
+
+Python library `requests` is required to run this script.
+
+**Usage:**
+
+```bash
+python export_users.py [-h] <-u USERNAME> <-p PASSWORD> <-U URL>
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u USERNAME, --username USERNAME
+                        Admin username
+  -p PASSWORD, --password PASSWORD
+                        Admin password
+  -U URL, --url URL     SWARM base URL
 ```
